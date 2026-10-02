@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { NAV_ITEMS } from "../../constants/adminNavigation";
+import { getAvatarUrl } from "../../utils/avatarUrl";
 
 
 const ICONS = {
@@ -45,8 +46,9 @@ function AdminSidebar({
 
   const displayName = user?.name || user?.email?.split("@")[0] || "Admin";
   const roleLabel = user?.role || "Admin";
-  const avatarUrl =
-    user?.avatar_url || `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(displayName)}`;
+  const avatarUrl = getAvatarUrl(
+    user?.avatar_url || `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(displayName)}`
+  );
 
   return (
     <>

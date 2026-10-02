@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { ChevronRight, LogOut, Settings, User, ShieldCheck, LayoutGrid } from "lucide-react";
 import API_BASE_URL from "../lib/api";
+import { getAvatarUrl } from "../lib/avatarUrl";
 import { useSidebar } from "../context/SidebarContext";
 import { useTranslation } from "react-i18next";
 
@@ -104,7 +105,7 @@ const Sidebar = ({ activePage = "dashboard" }) => {
             <div className={`absolute bottom-full mb-6 left-4 right-4 bg-card/95 backdrop-blur-2xl border border-border/50 rounded-[2.5rem] shadow-[0_-20px_80px_rgba(0,0,0,0.3)] overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300 z-90 ${sidebarCollapsed ? "w-52 -left-2" : ""}`}>
               <div className="p-6 border-b border-border/50 bg-linear-to-tr from-teal-500/10 to-transparent text-center">
                  <img 
-                   src={user?.avatar_url || `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(`${user?.firstName || ""} ${user?.lastName || ""}`.trim() || user?.name || displayName)}`} 
+                   src={getAvatarUrl(user?.avatar_url || `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(`${user?.firstName || ""} ${user?.lastName || ""}`.trim() || user?.name || displayName)}`)}
                    className="w-16 h-16 rounded-3xl mx-auto mb-3 shadow-2xl border-2 border-card object-cover" 
                    alt="User" 
                    onError={(e) => {
@@ -127,7 +128,7 @@ const Sidebar = ({ activePage = "dashboard" }) => {
           >
             <div className={`bg-card dark:bg-[#0a0f1e] rounded-[1.9rem] transition-all duration-300 ${sidebarCollapsed ? 'p-1' : 'p-4 flex items-center'}`}>
               <img 
-                src={user?.avatar_url || `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(`${user?.firstName || ""} ${user?.lastName || ""}`.trim() || user?.name || displayName)}`} 
+                src={getAvatarUrl(user?.avatar_url || `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(`${user?.firstName || ""} ${user?.lastName || ""}`.trim() || user?.name || displayName)}`)}
                 className={`${sidebarCollapsed ? 'w-12 h-12' : 'w-10 h-10'} rounded-[1.2rem] shadow-md border-2 border-white dark:border-slate-800 transition-all object-cover`} 
                 alt="Avatar" 
                 onError={(e) => {

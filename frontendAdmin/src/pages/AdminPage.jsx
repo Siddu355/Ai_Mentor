@@ -3,6 +3,7 @@ import { BookOpen, ChevronRight, CreditCard, GraduationCap, LayoutDashboard, Log
 import { useLocation, useNavigate } from "react-router-dom";
 
 import Header from "../components/Header";
+import { getAvatarUrl } from "../utils/avatarUrl";
 
 const NAV = [
   ["dashboard", "Dashboard", LayoutDashboard],
@@ -155,7 +156,9 @@ export default function AdminPage() {
 
   const navTo = (id) => { navigate(`/${id}`); setMobileNav(false); };
   const displayName = user?.name || user?.email?.split("@")[0] || "Admin";
-  const avatarUrl = user?.avatar_url || `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(displayName)}`;
+  const avatarUrl = getAvatarUrl(
+    user?.avatar_url || `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(displayName)}`
+  );
   const confirmLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");

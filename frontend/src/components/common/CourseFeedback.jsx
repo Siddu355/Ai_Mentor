@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../../context/AuthContext";
 import API_BASE_URL from "../../lib/api";
+import { getAvatarUrl } from "../../lib/avatarUrl";
 import toast from "react-hot-toast";
 import { Star, Trash2, Edit3, Send, X, MessageSquare, ChevronDown, ChevronUp } from "lucide-react";
 
@@ -92,7 +93,7 @@ function ReviewCard({ review, isOwn, onEdit, onDelete }) {
       <div className="flex items-start gap-3">
         {/* Avatar */}
         {review.userAvatar ? (
-          <img src={review.userAvatar} alt={review.userName} className="w-9 h-9 rounded-full object-cover shrink-0 border-2 border-white dark:border-slate-700 shadow-sm" onError={e => { e.currentTarget.style.display = "none"; }} />
+          <img src={getAvatarUrl(review.userAvatar)} alt={review.userName} className="w-9 h-9 rounded-full object-cover shrink-0 border-2 border-white dark:border-slate-700 shadow-sm" onError={e => { e.currentTarget.style.display = "none"; }} />
         ) : (
           <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${colors[colorIdx]} flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-sm`}>
             {initial}

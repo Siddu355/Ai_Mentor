@@ -27,6 +27,7 @@ import {
   MoreVertical,
 } from "lucide-react";
 import FloatingAssistant from "../components/common/FloatingAssistant";
+import { getAvatarUrl } from "../lib/avatarUrl";
 
 //helpers
 const getRelativeTime = (dateStr) => {
@@ -50,7 +51,7 @@ const Avatar = ({ src, name, size = "w-10 h-10", isGoogle, googleId }) => {
 
   return (
     <img
-      src={src || fallback}
+      src={getAvatarUrl(src || fallback)}
       alt={name || "User"}
       className={`${size} rounded-full object-cover shrink-0 ${!src && !isGoogleUser ? 'p-1.5 bg-slate-100 dark:bg-slate-800 border border-border' : ''}`}
       onError={(e) => {

@@ -1,11 +1,4 @@
 const REQUIRED_ENV_VARS = [
-  // ── Database ──────────────────────────────────────────────────────────────
-  {
-    key: "NEON_DATABASE_URL",
-    hint: "Neon PostgreSQL connection string (e.g. postgresql://user:pass@host/db)",
-    group: "Database",
-  },
-
   // ── Auth ──────────────────────────────────────────────────────────────────
   {
     key: "JWT_SECRET",
@@ -30,7 +23,7 @@ const REQUIRED_ENV_VARS = [
     group: "Cloudinary",
   },
 
-  // ── Email (SMTP) ──────────────────────────────────────────────────────────
+  // ── Email ─────────────────────────────────────────────────────────────────
   {
     key: "SMTP_HOST",
     hint: "SMTP server host (e.g. smtp.gmail.com)",
@@ -72,25 +65,28 @@ const REQUIRED_ENV_VARS = [
   // ── Stripe ────────────────────────────────────────────────────────────────
   {
     key: "STRIPE_SECRET_KEY",
-    hint: "Stripe secret key from your Stripe dashboard (starts with sk_test_ or sk_live_)",
+    hint:
+      "Stripe secret key from your Stripe dashboard (starts with sk_test_ or sk_live_)",
     group: "Stripe",
   },
   {
     key: "STRIPE_WEBHOOK_SECRET",
-    hint: "Stripe webhook secret from your Stripe dashboard (starts with whsec_)",
+    hint:
+      "Stripe webhook secret from your Stripe dashboard (starts with whsec_)",
     group: "Stripe",
   },
 
-  // ── Razorpay ────────────────────────────────────────────────────────────────
-
+  // ── Razorpay ──────────────────────────────────────────────────────────────
   {
     key: "RAZORPAY_KEY_ID",
-    hint: "RAZORPAY KEY ID from your Razorpay Dashboard -> Account & Settings -> Api keys (sart with rzp_test_ )",
+    hint:
+      "Razorpay Key ID from Razorpay Dashboard → Account & Settings → API Keys",
     group: "Razorpay",
   },
   {
     key: "RAZORPAY_KEY_SECRET",
-    hint: "RAZORPAY KEY SECRET from your Razorpay Dashboard -> Account & Settings -> Api keys",
+    hint:
+      "Razorpay Key Secret from Razorpay Dashboard → Account & Settings → API Keys",
     group: "Razorpay",
   },
 ];
@@ -98,7 +94,7 @@ const REQUIRED_ENV_VARS = [
 const PLACEHOLDER_PATTERNS = [
   /^your_/i,
   /^your-/i,
-  /^<.+>$/,
+  /^<.+>$/i,
   /^placeholder/i,
   /^changeme/i,
   /^xxx/i,
@@ -106,63 +102,235 @@ const PLACEHOLDER_PATTERNS = [
 ];
 
 // ── ANSI colours ─────────────────────────────────────────────────────────────
-const RED    = "\x1b[31m";
+const RED = "\x1b[31m";
 const YELLOW = "\x1b[33m";
-const GREEN  = "\x1b[32m";
-const BOLD   = "\x1b[1m";
-const DIM    = "\x1b[2m";
-const RESET  = "\x1b[0m";
+const GREEN = "\x1b[32m";
+const BOLD = "\x1b[1m";
+const DIM = "\x1b[2m";
+const RESET = "\x1b[0m";
 
+/**
+ * Validate backend environment variables.
+ *
+ * Database:
+ * - If NEON_DATABASE_URL exists, Neon PostgreSQL is used.
+ * - If NEON_DATABASE_URL is empty, local PostgreSQL is used.
+ *
+ * Local PostgreSQL:
+ * - DB_NAME
+ * - DB_USER
+ * - DB_PASSWORD
+ * - DB_HOST
+ * - DB_PORT
+ */
 export function validateEnv() {
-  const missing      = [];
+  const missing = [];
   const placeholders = [];
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // DATABASE VALIDATION
+  // ─────────────────────────────────────────────────────────────────────────
+
+  const neonDatabaseUrl = process.env.NEON_DATABASE_URL?.trim();
+
+  if (neonDatabaseUrl) {
+    const invalidNeonUrl =
+      PLACEHOLDER_PATTERNS.some((re) => re.test(neonDatabaseUrl)) ||
+      neonDatabaseUrl.includes("your_password") ||
+      neonDatabaseUrl.includes("your_host") ||
+      neonDatabaseUrl.includes("your_db");
+
+    if (invalidNeonUrl) {
+      placeholders.push({
+        key: "NEON_DATABASE_URL",
+        hint:
+          "Real Neon PostgreSQL connection string, or leave empty to use local PostgreSQL",
+        group: "Database",
+      });
+    }
+  } else {
+    // Local PostgreSQL
+    const localDatabaseVars = [
+      {
+        key: "DB_NAME",
+        hint: "Local PostgreSQL database name",
+      },
+      {
+        key: "DB_USER",
+        hint: "Local PostgreSQL username",
+      },
+      {
+        key: "DB_PASSWORD",
+        hint: "Local PostgreSQL password",
+      },
+      {
+        key: "DB_HOST",
+        hint: "Local PostgreSQL host, normally localhost",
+      },
+      {
+        key: "DB_PORT",
+        hint: "Local PostgreSQL port, normally 5432",
+      },
+    ];
+
+    for (const { key, hint } of localDatabaseVars) {
+      const value = process.env[key];
+
+      if (!value || value.trim() === "") {
+        missing.push({
+          key,
+          hint,
+          group: "Local PostgreSQL",
+        });
+      }
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // OTHER ENVIRONMENT VARIABLES
+  // ─────────────────────────────────────────────────────────────────────────
 
   for (const { key, hint, group } of REQUIRED_ENV_VARS) {
     const value = process.env[key];
+
     if (!value || value.trim() === "") {
-      missing.push({ key, hint, group });
-    } else if (PLACEHOLDER_PATTERNS.some((re) => re.test(value.trim()))) {
-      placeholders.push({ key, hint, group });
+      missing.push({
+        key,
+        hint,
+        group,
+      });
+    } else if (
+      PLACEHOLDER_PATTERNS.some((re) => re.test(value.trim()))
+    ) {
+      placeholders.push({
+        key,
+        hint,
+        group,
+      });
     }
   }
 
-  // ── All good ────────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────────
+  // DATABASE MODE
+  // ─────────────────────────────────────────────────────────────────────────
+
+  if (neonDatabaseUrl) {
+    console.log(
+      `${GREEN}${BOLD}✔ Database mode: Neon PostgreSQL${RESET}`
+    );
+  } else {
+    console.log(
+      `${GREEN}${BOLD}✔ Database mode: Local PostgreSQL${RESET}`
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // EVERYTHING VALID
+  // ─────────────────────────────────────────────────────────────────────────
+
   if (missing.length === 0 && placeholders.length === 0) {
-    console.log(`${GREEN}${BOLD}✔  All environment variables are set correctly.${RESET}`);
-    return;
+    console.log(
+      `${GREEN}${BOLD}✔ All required environment variables are set correctly.${RESET}`
+    );
+
+    return true;
   }
 
-  // ── Print warning banner ─────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────────
+  // WARNING BANNER
+  // ─────────────────────────────────────────────────────────────────────────
+
   process.stdout.write("\n");
-  process.stdout.write(`${BOLD}${YELLOW}══════════════════════════════════════════════════${RESET}\n`);
-  process.stdout.write(`${BOLD}${YELLOW}  ⚠  Environment Variable Warning — Backend${RESET}\n`);
-  process.stdout.write(`${BOLD}${YELLOW}══════════════════════════════════════════════════${RESET}\n\n`);
 
-  // ── Missing vars ─────────────────────────────────────────────────────────
+  process.stdout.write(
+    `${BOLD}${YELLOW}══════════════════════════════════════════════════${RESET}\n`
+  );
+
+  process.stdout.write(
+    `${BOLD}${YELLOW}  ⚠ Environment Variable Warning — Backend${RESET}\n`
+  );
+
+  process.stdout.write(
+    `${BOLD}${YELLOW}══════════════════════════════════════════════════${RESET}\n\n`
+  );
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // MISSING VARIABLES
+  // ─────────────────────────────────────────────────────────────────────────
+
   if (missing.length > 0) {
-    process.stdout.write(`${BOLD}${RED}Missing variable${missing.length > 1 ? "s" : ""}:${RESET}\n`);
+    process.stdout.write(
+      `${BOLD}${RED}Missing variable${
+        missing.length > 1 ? "s" : ""
+      }:${RESET}\n`
+    );
+
     for (const { key, hint, group } of missing) {
-      process.stdout.write(`  ${RED}✖ ${BOLD}${key}${RESET}  ${DIM}[${group}]${RESET}\n`);
-      process.stdout.write(`    ${DIM}→ ${hint}${RESET}\n`);
+      process.stdout.write(
+        `  ${RED}✖ ${BOLD}${key}${RESET} ${DIM}[${group}]${RESET}\n`
+      );
+
+      process.stdout.write(
+        `    ${DIM}→ ${hint}${RESET}\n`
+      );
     }
+
     process.stdout.write("\n");
   }
 
-  // ── Placeholder vars ─────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────────
+  // PLACEHOLDER VARIABLES
+  // ─────────────────────────────────────────────────────────────────────────
+
   if (placeholders.length > 0) {
-    process.stdout.write(`${BOLD}${YELLOW}Placeholder value${placeholders.length > 1 ? "s" : ""} detected:${RESET}\n`);
+    process.stdout.write(
+      `${BOLD}${YELLOW}Placeholder value${
+        placeholders.length > 1 ? "s" : ""
+      } detected:${RESET}\n`
+    );
+
     for (const { key, hint, group } of placeholders) {
-      process.stdout.write(`  ${YELLOW}⚠ ${BOLD}${key}${RESET}${YELLOW} still has a placeholder value  ${DIM}[${group}]${RESET}\n`);
-      process.stdout.write(`    ${DIM}→ Replace it with your real ${hint}${RESET}\n`);
+      process.stdout.write(
+        `  ${YELLOW}⚠ ${BOLD}${key}${RESET}${YELLOW} still has a placeholder value ${DIM}[${group}]${RESET}\n`
+      );
+
+      process.stdout.write(
+        `    ${DIM}→ Replace it with your real value: ${hint}${RESET}\n`
+      );
     }
+
     process.stdout.write("\n");
   }
 
-  // ── How to fix ───────────────────────────────────────────────────────────
-  process.stdout.write(`${DIM}How to fix:${RESET}\n`);
-  process.stdout.write(`  ${DIM}1. Copy .env.example to .env  →  cp .env.example .env${RESET}\n`);
-  process.stdout.write(`  ${DIM}2. Open .env and fill in every value listed above${RESET}\n`);
-  process.stdout.write(`  ${DIM}3. Restart the server${RESET}\n\n`);
+  // ─────────────────────────────────────────────────────────────────────────
+  // HOW TO FIX
+  // ─────────────────────────────────────────────────────────────────────────
 
-  process.stdout.write(`${BOLD}${YELLOW}⚠  Server is starting anyway — some features may not work correctly.${RESET}\n\n`);
+  process.stdout.write(`${DIM}How to fix:${RESET}\n`);
+
+  process.stdout.write(
+    `  ${DIM}1. Open backend/.env${RESET}\n`
+  );
+
+  process.stdout.write(
+    `  ${DIM}2. For local PostgreSQL, keep NEON_DATABASE_URL empty${RESET}\n`
+  );
+
+  process.stdout.write(
+    `  ${DIM}3. Set DB_NAME, DB_USER, DB_PASSWORD, DB_HOST and DB_PORT${RESET}\n`
+  );
+
+  process.stdout.write(
+    `  ${DIM}4. Replace service placeholders with real credentials when those services are used${RESET}\n`
+  );
+
+  process.stdout.write(
+    `  ${DIM}5. Restart the server${RESET}\n\n`
+  );
+
+  process.stdout.write(
+    `${BOLD}${YELLOW}⚠ Server is starting anyway — some features may not work correctly.${RESET}\n\n`
+  );
+
+  return false;
 }

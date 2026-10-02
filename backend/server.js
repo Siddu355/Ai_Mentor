@@ -6,6 +6,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 import { connectDB, sequelize } from "./config/db.js";
+import { uploadsDirectory } from "./config/uploadStorage.js";
 
 // ================= ROUTES =================
 import authRoutes from "./routes/auth.js";
@@ -80,7 +81,7 @@ app.use(
 
 // ================= STATIC FILES =================
 app.use("/videos", express.static(path.join(__dirname, "videos")));
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+app.use("/uploads", express.static(uploadsDirectory));
 
 // ================= HEALTH CHECK =================
 app.get("/", (req, res) => {

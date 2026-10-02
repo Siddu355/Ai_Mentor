@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import AuthLayout from "../components/auth/AuthLayout";
 import { Eye, EyeOff, Check, X, Camera, User as UserIcon } from "lucide-react";
 import toast from "react-hot-toast";
+import { getAvatarUrl } from "../lib/avatarUrl";
 
 /* ─── Reusable form input (consistent with Login/Signup) ─── */
 const FormInput = ({ label, type, placeholder, value, onChange, required = true }) => (
@@ -219,7 +220,7 @@ const [avatarPreview, setAvatarPreview] = useState(() => getInitialAvatar());
             <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center bg-gray-100 dark:bg-slate-800 transition-all group-hover:border-[#00BEA5] group-hover:shadow-lg group-hover:shadow-teal-500/20">
               {avatarPreview ? (
                 <img
-                  src={avatarPreview}
+                  src={getAvatarUrl(avatarPreview)}
                   alt="Avatar preview"
                   className="w-full h-full object-cover"
                   onError={(e) => {

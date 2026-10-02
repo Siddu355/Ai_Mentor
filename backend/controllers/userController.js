@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 import cloudinary from "../config/cloudinary.js";
 import fs from "fs";
 import { ensureProfileCompleteness, formatFullName } from "../utils/userUtils.js";
+import { getUploadedAvatarUrl } from "../utils/avatarUrl.js";
 import { createNotification } from "./notificationController.js";
 
 
@@ -461,7 +462,7 @@ const updateUserProfile = async (req, res) => {
 
     // Avatar Upload Handling
     if (req.file) {
-  user.avatar_url = `/uploads/${req.file.filename}`;
+      user.avatar_url = getUploadedAvatarUrl(req.file.filename);
     }
 
     // Update text fields
@@ -614,7 +615,7 @@ const completeProfile = async (req, res) => {
     // Avatar upload via Cloudinary (required if not already set)
     // Store image locally instead of Cloudinary
 if (req.file) {
-  user.avatar_url = `/uploads/${req.file.filename}`;
+  user.avatar_url = getUploadedAvatarUrl(req.file.filename);
 } else if (!user.avatar_url) {
   return res.status(400).json({
     message: "Profile photo is required",

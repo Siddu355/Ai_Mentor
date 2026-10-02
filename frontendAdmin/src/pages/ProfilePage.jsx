@@ -1,5 +1,6 @@
 import React, { useEffect,useState } from "react";
 import { Camera } from "lucide-react";
+import { getAvatarUrl } from "../utils/avatarUrl";
 
 const ProfilePage = () => {
   const [user, setUser] = useState(null);
@@ -43,7 +44,9 @@ if (loading) {
   const lastName = user?.lastName || user?.name?.split(" ")[1] || "";
   const email = user?.email || "admin@uptoskills.com";
   const role = user?.role || "Admin";
-  const avatarUrl = user?.avatar_url || `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(firstName + " " + lastName)}`;
+  const avatarUrl = getAvatarUrl(
+    user?.avatar_url || `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(firstName + " " + lastName)}`
+  );
 
   return (
     <div className="p-8">

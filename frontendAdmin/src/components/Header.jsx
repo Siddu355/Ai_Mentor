@@ -3,6 +3,7 @@ import { Bell, LogOut, Menu, Search, Settings, ShieldCheck, User, X } from "luci
 import { useNavigate } from "react-router-dom";
 import Themetoggle from "../components/common/ThemeToggle";
 import { callApi } from "../utils/api";
+import { getAvatarUrl } from "../utils/avatarUrl";
 
 const Header = ({ title, onMenuClick, searchQuery = "", onSearchChange }) => {
   const navigate = useNavigate();
@@ -26,8 +27,9 @@ const Header = ({ title, onMenuClick, searchQuery = "", onSearchChange }) => {
   }, []);
 
   const displayName = user?.name || user?.email?.split("@")[0] || "Admin";
-  const avatarUrl =
-    user?.avatar_url || `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(displayName)}`;
+  const avatarUrl = getAvatarUrl(
+    user?.avatar_url || `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(displayName)}`
+  );
   const unreadCount = notifications.filter((item) => item.unread).length;
   const effectiveSearchQuery =
     typeof onSearchChange === "function" ? searchQuery : internalSearchQuery;

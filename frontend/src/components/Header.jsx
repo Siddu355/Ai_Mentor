@@ -6,6 +6,7 @@ import ThemeToggle from "../components/common/ThemeToggle";
 import { useSidebar } from "../context/SidebarContext";
 import { useTranslation } from "react-i18next";
 import NotificationItem from "../components/common/NotificationItem";
+import { getAvatarUrl } from "../lib/avatarUrl";
 import {
   fetchNotifications,
   markAsReadApi,
@@ -260,7 +261,7 @@ const Header = () => {
                   >
                     <div className="relative">
                       <img
-                        src={user?.avatar_url || `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(`${user?.firstName || ""} ${user?.lastName || ""}`.trim() || user?.name || displayName)}`}
+                        src={getAvatarUrl(user?.avatar_url || `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(`${user?.firstName || ""} ${user?.lastName || ""}`.trim() || user?.name || displayName)}`)}
                         className="w-9 h-9 rounded-xl shadow-md border border-border/50 group-hover:border-teal-500 transition-all object-cover"
                         alt="Avatar"
                         onError={(e) => {
@@ -278,7 +279,7 @@ const Header = () => {
                       <div className="p-6 bg-gradient-to-br from-teal-500/10 via-blue-500/5 to-transparent border-b border-border/50">
                         <div className="flex items-center space-x-4 mb-4">
                           <img
-                            src={user?.avatar_url || `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(`${user?.firstName || ""} ${user?.lastName || ""}`.trim() || user?.name || displayName)}`}
+                            src={getAvatarUrl(user?.avatar_url || `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(`${user?.firstName || ""} ${user?.lastName || ""}`.trim() || user?.name || displayName)}`)}
                             className="w-14 h-14 rounded-2xl shadow-xl border-2 border-white dark:border-slate-800 object-cover"
                             alt="User"
                             onError={(e) => {

@@ -4,6 +4,7 @@ import multer from "multer";
 import path from "path";
 import { protect } from "../middleware/authMiddleware.js";
 import validate from "../middleware/validate.js";
+import { uploadsDirectory } from "../config/uploadStorage.js";
 import { registerSchema, loginSchema } from "../schemas/authSchema.js";
 import {
   updateProfileSchema,
@@ -34,7 +35,7 @@ const router = express.Router();
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/");
+    cb(null, uploadsDirectory);
   },
   filename: function (req, file, cb) {
     const ext = path.extname(file.originalname);

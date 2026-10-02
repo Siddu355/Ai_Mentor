@@ -12,6 +12,7 @@ import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import i18n from "../i18n/index.js";
 import FloatingAssistant from "../components/common/FloatingAssistant.jsx";
+import { getAvatarUrl } from "../lib/avatarUrl";
 
 // ── Added Firebase Imports for Issue #390 Fix ───────────────────────────
 import { signOut } from "firebase/auth";
@@ -334,7 +335,7 @@ export default function Settings() {
               {/* Avatar + camera button */}
               <div className="relative mb-4">
                 <img
-                  src={avatarFile ? URL.createObjectURL(avatarFile) : user?.avatar_url ? user.avatar_url : `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(`${formData.firstName} ${formData.lastName}`)}`}
+                  src={getAvatarUrl(avatarFile ? URL.createObjectURL(avatarFile) : user?.avatar_url ? user.avatar_url : `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(`${formData.firstName} ${formData.lastName}`)}`)}
                   onError={(e) => {
                     e.currentTarget.onerror = null;
                     e.currentTarget.src = `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(`${formData.firstName} ${formData.lastName}`)}`;
