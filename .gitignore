@@ -67,3 +67,6 @@ backend/config/serviceAccountKey.json
 # Local Scripts
 # =====================
 start_ai.bat
+
+/backend/uploads/*
+!/backend/uploads/.gitkeep
